@@ -60,8 +60,8 @@ void main()
 
     // float colorFill = -vModelPosition.y - 10.0 + uTime * 2.0;
 
-    gl_FragColor = vec4(getColor(0.27, 0.0), getColor(0.80, 0.5), getColor(0.22, 1.0), 1.0);
-    // gl_FragColor = vec4(0.2, 0.5, 0.8, 1.0);
+    // gl_FragColor = vec4(getColor(0.27, 0.0), getColor(0.80, 0.5), getColor(0.22, 1.0), 1.0);
+    gl_FragColor = vec4(0.0, 0.9, 0.1, -vModelPosition.x - 22.0 + uTime * 10.0);
 
 }
 
