@@ -16,25 +16,26 @@ const scene = new THREE.Scene({
 })
 
 // floor
-const floorGeometry = new THREE.PlaneGeometry(10, 10, 10, 10)
-const floorMaterial = new THREE.MeshBasicMaterial({
-    side: DoubleSide
-})
-const floor = new THREE.Mesh(floorGeometry, floorMaterial)
-floor.position.z = 10
-scene.add(floor)
+// const floorGeometry = new THREE.PlaneGeometry(10, 10, 10, 10)
+// const floorMaterial = new THREE.MeshBasicMaterial({
+//     side: DoubleSide
+// })
+// const floor = new THREE.Mesh(floorGeometry, floorMaterial)
+// floor.position.z = 10
+// scene.add(floor)
 
 /**
  * Plane
  */
 // Geometry
-const planeGeometry = new THREE.PlaneGeometry(1, 10, 512, 512)
+const planeGeometry = new THREE.PlaneGeometry(1, 20, 512, 512)
 
 
 // Material
 const material = new THREE.ShaderMaterial({
     vertexShader: vertexColorFill,
     fragmentShader: fragmentColorFill,
+    transparent: true,
     uniforms: {
         uTime: { value: 0 }
     },
@@ -73,7 +74,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(10.301745630990968, -0.15983310190237104, 8.688924855908343)
+camera.position.set( -0.1495845580327776, 0.48533407690156233, 17.41059859408952)
 scene.add(camera)
 
 // Controls
@@ -97,9 +98,11 @@ renderer.setClearColor('#f3f3f3')
 
  const tick = () =>
  {
-     const elapsedTime = clock.getElapsedTime() - 10
+     const elapsedTime = clock.getElapsedTime()
  
- 
+    // console.log(camera.position)
+
+    // console.log(fragmentColorFill.vModelPosition)
 
      // Update ColorFill
      material.uniforms.uTime.value = elapsedTime
