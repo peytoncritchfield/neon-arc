@@ -4,9 +4,20 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import fragmentColorFill from './shaders/colorFill/fragment.glsl'
 import vertexColorFill from './shaders/colorFill/vertex.glsl'
 import { DoubleSide } from 'three'
+import * as dat from 'dat.gui'
+
+/**
+ * Base
+ */
+// Debug
+const gui = new dat.GUI({ width: 340 })
 
 
-
+const variables = {
+    pipeLength: {
+        value: 120
+    }
+}
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -17,12 +28,13 @@ const scene = new THREE.Scene({
 })
 
 // floor
-const floorGeometry = new THREE.PlaneGeometry(100, 100, 10, 10)
+const floorGeometry = new THREE.PlaneGeometry(200, 200, 10, 10)
 const floorMaterial = new THREE.MeshBasicMaterial({
     color: 0x444466
 })
 const floor = new THREE.Mesh(floorGeometry, floorMaterial)
 floor.position.y = 10
+floor.position.z = 10
 floor.rotation.z = - Math.PI / 2
 scene.add(floor)
 
@@ -30,19 +42,27 @@ scene.add(floor)
  * Plane
  */
 // Geometry
-const planeGeometry = new THREE.PlaneGeometry(0.5, 100, 150, 150)
+const geometry = new THREE.CylinderGeometry(0.5, 0.5, variables.pipeLength.value, 100, 100, true)
 const material = new THREE.ShaderMaterial({
         vertexShader: vertexColorFill,
         fragmentShader: fragmentColorFill,
         transparent: true,
         uniforms: {
-            uTime: { value: 0 }
+            uTime: { value: 0 },
+            pipeLength: { value: variables.pipeLength.value }
         },
         side: DoubleSide
     })
-const plane = new THREE.Mesh(planeGeometry, material)
-plane.rotation.z = Math.PI / 2
-scene.add(plane)
+const arc = new THREE.Mesh(geometry, material)
+arc.rotation.z = Math.PI / 2
+scene.add(arc)
+
+gui.add(material.uniforms.pipeLength, 'value', 100, 175, 0.1).name('Pipe Length')
+
+
+console.log(arc.position)
+
+console.log(floor.position)
 
 // class CustomSinCurve extends THREE.Curve {
 
@@ -101,6 +121,8 @@ scene.add(plane)
 // scene.add(plane)
 
 // const axesHelper = new THREE.AxesHelper( 5 );
+// axesHelper.scale.set(10, 10, 10)
+// axesHelper.position.z = 5
 // scene.add( axesHelper );
 
 /**
@@ -131,7 +153,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 1000)
-camera.position.set( 7.561865800270487, -28.57197697916383, 34.969755283259886)
+camera.position.set( -0.007208426434556429, -84.73211900588136, 20.5198587695649471)
 scene.add(camera)
 
 // Controls
@@ -146,7 +168,7 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.setClearColor('#AAAAAA')
+// renderer.setClearColor('#AAAAAA')
 
 /**
  * Animate
