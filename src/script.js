@@ -30,7 +30,7 @@ scene.add(floor)
  * Plane
  */
 // Geometry
-const planeGeometry = new THREE.PlaneGeometry(2, 100, 150, 150)
+const planeGeometry = new THREE.PlaneGeometry(0.5, 100, 150, 150)
 const material = new THREE.ShaderMaterial({
         vertexShader: vertexColorFill,
         fragmentShader: fragmentColorFill,
