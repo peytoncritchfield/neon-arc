@@ -7,6 +7,7 @@ import { DoubleSide } from 'three'
 
 
 
+
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
@@ -16,35 +17,92 @@ const scene = new THREE.Scene({
 })
 
 // floor
-// const floorGeometry = new THREE.PlaneGeometry(10, 10, 10, 10)
-// const floorMaterial = new THREE.MeshBasicMaterial({
-//     side: DoubleSide
-// })
-// const floor = new THREE.Mesh(floorGeometry, floorMaterial)
-// floor.position.z = 10
-// scene.add(floor)
+const floorGeometry = new THREE.PlaneGeometry(100, 100, 10, 10)
+const floorMaterial = new THREE.MeshBasicMaterial({
+    color: 'green'
+})
+const floor = new THREE.Mesh(floorGeometry, floorMaterial)
+floor.position.z = 10
+floor.position.y = -50
+floor.rotation.z = - Math.PI / 2
+scene.add(floor)
 
 /**
  * Plane
  */
 // Geometry
-const planeGeometry = new THREE.PlaneGeometry(1, 20, 512, 512)
-
-
-// Material
+const planeGeometry = new THREE.PlaneGeometry(2, 100, 150, 150)
 const material = new THREE.ShaderMaterial({
-    vertexShader: vertexColorFill,
-    fragmentShader: fragmentColorFill,
-    transparent: true,
-    uniforms: {
-        uTime: { value: 0 }
-    },
-    side: DoubleSide
-})
+        vertexShader: vertexColorFill,
+        fragmentShader: fragmentColorFill,
+        transparent: true,
+        uniforms: {
+            uTime: { value: 0 }
+        },
+        side: DoubleSide
+    })
+const plane = new THREE.Mesh(planeGeometry, material)
+plane.rotation.z = Math.PI / 2
+scene.add(plane)
+
+// class CustomSinCurve extends THREE.Curve {
+
+// 	constructor( scale = 1 ) {
+
+// 		super();
+
+// 		this.scale = scale;
+
+// 	}
+
+// 	getPoint( t, optionalTarget = new THREE.Vector3() ) {
+
+// 		const tx = t;
+// 		const ty = 0;
+// 		const tz = 0;
+
+// 		return optionalTarget.set( tx, ty, tz ).multiplyScalar( this.scale );
+
+// 	}
+
+// }
+
+// // Material
+// const material = new THREE.ShaderMaterial({
+//     vertexShader: vertexColorFill,
+//     fragmentShader: fragmentColorFill,
+//     transparent: true,
+//     uniforms: {
+//         uTime: { value: 0 }
+//     }
+// })
+
+// const path = new CustomSinCurve( 200 );
+// const geometry = new THREE.TubeGeometry( path, 20, 2, 8, false );
+// // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+// const mesh = new THREE.Mesh( geometry, material );
+// scene.add( mesh );
+
+// const cylinderGeometry = new THREE.CylinderGeometry(5, 20, 1000, 20, 20, true)
+// const cylinderMaterial = new THREE.ShaderMaterial({
+//         vertexShader: vertexColorFill,
+//         fragmentShader: fragmentColorFill,
+//         transparent: true,
+//         uniforms: {
+//             uTime: { value: 0 }
+//         }
+//     })
+// const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial)
+// scene.add(cylinder)
+
+
 
 // Mesh
-const plane = new THREE.Mesh(planeGeometry, material)
-scene.add(plane)
+// const plane = new THREE.Mesh(geometry, material)
+// scene.add(plane)
+
+const axesHelper = new THREE.AxesHelper( 5 );
+scene.add( axesHelper );
 
 /**
  * Sizes
@@ -73,8 +131,8 @@ window.addEventListener('resize', () =>
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set( -0.1495845580327776, 0.48533407690156233, 17.41059859408952)
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 1000)
+camera.position.set( -0.1495845580327776, 50.48533407690156233, 17.41059859408952)
 scene.add(camera)
 
 // Controls
@@ -89,7 +147,7 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.setClearColor('#f3f3f3')
+renderer.setClearColor('#AAAAAA')
 
 /**
  * Animate
