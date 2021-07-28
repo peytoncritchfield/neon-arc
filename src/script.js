@@ -52,7 +52,7 @@ const scene = new THREE.Scene({
  * Plane
  */
 // Geometry
-const geometry = new THREE.CylinderGeometry(0.5, 0.5, variables.arcLength.value, 100, 100, true)
+const geometry = new THREE.CylinderGeometry(0.2, 0.2, variables.arcLength.value, 100, 100, true)
 const material = new THREE.ShaderMaterial({
         vertexShader: vertexColorFill,
         fragmentShader: fragmentColorFill,
@@ -168,7 +168,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 1000)
-camera.position.set( -0.007208426434556429, -84.73211900588136, 20.5198587695649471)
+camera.position.set( 48.26, -6.28, 36.57)
 scene.add(camera)
 
 // Controls
@@ -183,7 +183,7 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.setClearColor('#AAAAAA')
+// renderer.setClearColor('#AAAAAA')
 
 
 
@@ -234,14 +234,14 @@ glitchPass.goWild = false
 effectComposer.addPass(glitchPass)
 
 const rgbShiftPass = new ShaderPass(RGBShiftShader)
-rgbShiftPass.enabled = false
+rgbShiftPass.enabled = true
 effectComposer.addPass(rgbShiftPass)
 
 const unrealBloomPass = new UnrealBloomPass()
 unrealBloomPass.enabled = true
-unrealBloomPass.strength = 0.2
-unrealBloomPass.radius = 1
-unrealBloomPass.threshold = 0.6
+unrealBloomPass.strength = .3
+unrealBloomPass.radius = .2
+unrealBloomPass.threshold = 0.0
 effectComposer.addPass(unrealBloomPass)
 
 const rgbFolder = gui.addFolder('RGB Shift')
@@ -286,8 +286,8 @@ const TintShader = {
     `
 }
 const tintPass = new ShaderPass(TintShader)
-tintPass.material.uniforms.uTint.value = new THREE.Vector3(0.2, 0.05, 0.0)
-tintPass.enabled = false
+tintPass.material.uniforms.uTint.value = new THREE.Vector3(0.9, 0.9, 0.9)
+tintPass.enabled = true
 effectComposer.addPass(tintPass)
 
 const tintPassFolder = gui.addFolder('Tint Pass')
@@ -324,7 +324,7 @@ const DisplacementShader = {
         {
             vec2 newUv = vec2(
                 vUv.x,
-                vUv.y + sin(vUv.x * 10.0 + uTime) * 0.05
+                vUv.y + sin(vUv.x * 10.0 + uTime) * 0.02
             );
             vec4 color = texture2D(tDiffuse, newUv);
 
