@@ -4,7 +4,15 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import fragmentColorFill from './shaders/colorFill/fragment.glsl'
 import vertexColorFill from './shaders/colorFill/vertex.glsl'
 import { DoubleSide } from 'three'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass.js'
+import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js'
+import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import * as dat from 'dat.gui'
+
+// console.log(ShaderPass)
 
 /**
  * Base
@@ -168,7 +176,28 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-// renderer.setClearColor('#AAAAAA')
+renderer.setClearColor('#AAAAAA')
+
+// Post Processing
+const effectComposer = new EffectComposer(renderer)
+effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+effectComposer.setSize(sizes.width, sizes.height)
+
+const renderPass = new RenderPass(scene, camera)
+effectComposer.addPass(renderPass)
+
+const dotScreenPass = new DotScreenPass()
+dotScreenPass.enabled = false
+effectComposer.addPass(dotScreenPass)
+
+const glitchPass = new GlitchPass()
+glitchPass.enabled = false
+glitchPass.goWild = false
+effectComposer.addPass(glitchPass)
+
+const rgbShiftPass = new ShaderPass(RGBShiftShader)
+effectComposer.addPass(rgbShiftPass)
+
 
 /**
  * Animate
@@ -188,7 +217,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
      controls.update()
 
      // Render
-     renderer.render(scene, camera)
+    //  renderer.render(scene, camera)
+    effectComposer.render()
  
      // Call tick again on the next frame
      window.requestAnimationFrame(tick)

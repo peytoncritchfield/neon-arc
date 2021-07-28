@@ -12,7 +12,7 @@ float increment = 0.1;
         float startPosition = 10.0;
         float yPosition = -vModelPosition.x;
 
-        return yPosition - startPosition + uTime * 5.0;
+        return yPosition - startPosition + uTime * 2.0;
 
         // return value - 20.0;
         // return -vModelPosition.y - 10.0 + uTime * 2.0;
@@ -61,7 +61,7 @@ void main()
     // float colorFill = -vModelPosition.y - 10.0 + uTime * 2.0;
 
     // gl_FragColor = vec4(getColor(0.27, 0.0), getColor(0.80, 0.5), getColor(0.22, 1.0), 1.0);
-    gl_FragColor = vec4(0.0, 0.9, 0.1, -vModelPosition.x - 22.0 + uTime * 10.0);
+    gl_FragColor = vec4(sin(uTime / 0.2), sin(uTime) + abs(cos(vModelPosition.x)), sin(uTime / 0.5) - sin(vModelPosition.x), -vModelPosition.x - 22.0 + uTime * 10.0);
 
 }
 
