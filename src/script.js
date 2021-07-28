@@ -10,9 +10,11 @@ import { DotScreenPass } from 'three/examples/jsm/postprocessing/DotScreenPass.j
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js'
 import { RGBShiftShader } from 'three/examples/jsm/shaders/RGBShiftShader.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import * as dat from 'dat.gui'
 
-// console.log(ShaderPass)
+// console.log(SMAAPass)
 
 /**
  * Base
@@ -22,7 +24,7 @@ const gui = new dat.GUI({ width: 340 })
 
 
 const variables = {
-    pipeLength: {
+    arcLength: {
         value: 120
     }
 }
@@ -36,28 +38,28 @@ const scene = new THREE.Scene({
 })
 
 // floor
-const floorGeometry = new THREE.PlaneGeometry(200, 200, 10, 10)
-const floorMaterial = new THREE.MeshBasicMaterial({
-    color: 0x444466
-})
-const floor = new THREE.Mesh(floorGeometry, floorMaterial)
-floor.position.y = 10
-floor.position.z = 10
-floor.rotation.z = - Math.PI / 2
-scene.add(floor)
+// const floorGeometry = new THREE.PlaneGeometry(200, 200, 10, 10)
+// const floorMaterial = new THREE.MeshBasicMaterial({
+//     color: 0x444466
+// })
+// const floor = new THREE.Mesh(floorGeometry, floorMaterial)
+// floor.position.y = 10
+// floor.position.z = 10
+// floor.rotation.z = - Math.PI / 2
+// scene.add(floor)
 
 /**
  * Plane
  */
 // Geometry
-const geometry = new THREE.CylinderGeometry(0.5, 0.5, variables.pipeLength.value, 100, 100, true)
+const geometry = new THREE.CylinderGeometry(0.5, 0.5, variables.arcLength.value, 100, 100, true)
 const material = new THREE.ShaderMaterial({
         vertexShader: vertexColorFill,
         fragmentShader: fragmentColorFill,
         transparent: true,
         uniforms: {
             uTime: { value: 0 },
-            pipeLength: { value: variables.pipeLength.value }
+            arcLength: { value: variables.arcLength.value }
         },
         side: DoubleSide
     })
@@ -65,12 +67,12 @@ const arc = new THREE.Mesh(geometry, material)
 arc.rotation.z = Math.PI / 2
 scene.add(arc)
 
-gui.add(material.uniforms.pipeLength, 'value', 100, 175, 0.1).name('Pipe Length')
+const arcFolder = gui.addFolder('Arc')
+arcFolder.add(material.uniforms.arcLength, 'value', 100, 175, 0.1).name('Arc Length')
 
 
 console.log(arc.position)
 
-console.log(floor.position)
 
 // class CustomSinCurve extends THREE.Curve {
 
@@ -154,6 +156,11 @@ window.addEventListener('resize', () =>
     // Update renderer
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+    // update composer
+    effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    effectComposer.setSize(sizes.width, sizes.height)
+
 })
 
 /**
@@ -178,11 +185,42 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.setClearColor('#AAAAAA')
 
-// Post Processing
-const effectComposer = new EffectComposer(renderer)
+
+
+////// Post Processing
+
+// Render Target
+
+let RenderTargetClass = null
+
+if (renderer.getPixelRatio() === 1 && renderer.capabilities.isWebGL2)
+{
+    RenderTargetClass = THREE.WebGLMultisampleRenderTarget
+    console.log("Multi")
+}
+else
+{
+    RenderTargetClass = THREE.WebGLRenderTarget
+    console.log("Not Multi")
+}
+
+const renderTarget = new THREE.WebGLRenderTarget(
+    800,
+    600,
+    {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat,
+        encoding: THREE.sRGBEncoding
+    }
+)
+
+// Composer
+const effectComposer = new EffectComposer(renderer, renderTarget)
 effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 effectComposer.setSize(sizes.width, sizes.height)
 
+//Passes
 const renderPass = new RenderPass(scene, camera)
 effectComposer.addPass(renderPass)
 
@@ -196,9 +234,118 @@ glitchPass.goWild = false
 effectComposer.addPass(glitchPass)
 
 const rgbShiftPass = new ShaderPass(RGBShiftShader)
+rgbShiftPass.enabled = false
 effectComposer.addPass(rgbShiftPass)
 
+const unrealBloomPass = new UnrealBloomPass()
+unrealBloomPass.enabled = true
+unrealBloomPass.strength = 0.2
+unrealBloomPass.radius = 1
+unrealBloomPass.threshold = 0.6
+effectComposer.addPass(unrealBloomPass)
 
+const rgbFolder = gui.addFolder('RGB Shift')
+rgbFolder.add(rgbShiftPass, 'enabled').name('rgb shift pass')
+
+const bloomFolder = gui.addFolder('Bloom Pass')
+bloomFolder.add(unrealBloomPass, 'enabled').name('bloom pass')
+bloomFolder.add(unrealBloomPass, 'strength', 0, 2, 0.01).name('Strength')
+bloomFolder.add(unrealBloomPass, 'radius', 0, 2, 0.01).name('Radius')
+bloomFolder.add(unrealBloomPass, 'threshold', 0, 1, 0.01).name('Threshold')
+
+// Tint pass
+const TintShader = {
+    uniforms: 
+    {
+        tDiffuse: { value: null },
+        uTint: { value: null }
+    },
+    vertexShader: `
+
+        varying vec2 vUv;
+
+        void main()
+        {
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        
+            vUv = uv;
+        }
+    `,
+    fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform vec3 uTint;
+    
+        varying vec2 vUv;
+        
+        void main()
+        {
+            vec4 color = texture2D(tDiffuse, vUv);
+            color.rgb += uTint;
+            gl_FragColor = color;
+        }
+    `
+}
+const tintPass = new ShaderPass(TintShader)
+tintPass.material.uniforms.uTint.value = new THREE.Vector3(0.2, 0.05, 0.0)
+tintPass.enabled = false
+effectComposer.addPass(tintPass)
+
+const tintPassFolder = gui.addFolder('Tint Pass')
+tintPassFolder.add(tintPass, 'enabled').name('Tint Pass Enabled')
+tintPassFolder.add(tintPass.material.uniforms.uTint.value, 'x', -1, 1, 0.001).name('Red Tint')
+tintPassFolder.add(tintPass.material.uniforms.uTint.value, 'y', -1, 1, 0.001).name('Green Tint')
+tintPassFolder.add(tintPass.material.uniforms.uTint.value, 'z', -1, 1, 0.001).name('Blue Tint')
+
+
+// Displacement pass
+const DisplacementShader = {
+    uniforms:
+    {
+        tDiffuse: { value: null },
+        uTime: { value: null }
+    },
+    vertexShader: `
+        varying vec2 vUv;
+
+        void main()
+        {
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+            vUv = uv;
+        }
+    `,
+    fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float uTime;
+
+        varying vec2 vUv;
+
+        void main()
+        {
+            vec2 newUv = vec2(
+                vUv.x,
+                vUv.y + sin(vUv.x * 10.0 + uTime) * 0.05
+            );
+            vec4 color = texture2D(tDiffuse, newUv);
+
+            gl_FragColor = color;
+        }
+    `
+}
+
+const displacementPass = new ShaderPass(DisplacementShader)
+displacementPass.material.uniforms.uTime.value = 0
+displacementPass.enabled = true
+effectComposer.addPass(displacementPass)
+
+
+
+if (renderer.getPixelRatio() === 1 && !renderer.capabilities.isWebGL2)
+{
+const smaaPass = new SMAAPass()
+effectComposer.addPass(smaaPass)
+console.log('using smaa')
+}
 /**
  * Animate
  */
@@ -212,6 +359,8 @@ effectComposer.addPass(rgbShiftPass)
 
      // Update ColorFill
      material.uniforms.uTime.value = elapsedTime
+     
+     displacementPass.uniforms.uTime.value = elapsedTime
 
      // Update controls
      controls.update()

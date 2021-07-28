@@ -1,8 +1,9 @@
-uniform float pipeLength;
+uniform float arcLength;
 
-// float PI = 3.14159265359;
+float PI = 3.14159265359;
 
 varying vec4 vModelPosition;
+
 
 void main()
 {
@@ -11,7 +12,7 @@ void main()
     // float curve = (sin(modelPosition.y / 6.5) * 20.0);
     // modelPosition.z += curve;
 
-    float radius = (pipeLength / 3.14159265359) * (pipeLength / 3.14159265359);
+    float radius = (arcLength / PI) * (arcLength / PI);
     float innerSquare = radius - modelPosition.x * modelPosition.x;
     float curve = sqrt(innerSquare);
     modelPosition.z += curve;    
