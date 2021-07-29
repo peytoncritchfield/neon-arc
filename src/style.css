@@ -7,7 +7,9 @@
 html,
 body
 {
-    overflow: hidden;
+    overflow: auto;
+    height: 2000px;
+    background-color: #000;
 }
 
 .webgl
@@ -16,8 +18,11 @@ body
     background: #fff ;
     position: fixed;
     top: 0;
+    right: 0;
+    bottom: 0;
     left: 0;
     outline: none;
+    pointer-events: none;
 }
 
 

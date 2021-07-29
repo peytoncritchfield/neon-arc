@@ -6,7 +6,16 @@ import vertexColorFill from './shaders/colorFill/vertex.glsl'
 import { DoubleSide } from 'three'
 import * as dat from 'dat.gui'
 
+let scrollY = 0;
+let clientHeight = window.document.body.clientHeight;
+let reactiveLength = 0;
+
+window.addEventListener("scroll", function () {
+    scrollY = window.scrollY;
+    clientHeight = window.document.body.clientHeight;
+})
 /**
+ * 
  * Base
  */
 // Debug
@@ -28,63 +37,152 @@ const scene = new THREE.Scene({
 })
 
 // floor
-const floorGeometry = new THREE.PlaneGeometry(200, 200, 10, 10)
-const floorMaterial = new THREE.MeshBasicMaterial({
-    color: 0x444466
-})
-const floor = new THREE.Mesh(floorGeometry, floorMaterial)
-floor.position.y = 10
-floor.position.z = 10
-floor.rotation.z = - Math.PI / 2
-scene.add(floor)
+// const floorGeometry = new THREE.PlaneGeometry(200, 200, 10, 10)
+// const floorMaterial = new THREE.MeshBasicMaterial({
+//     color: 0x444466
+// })
+// const floor = new THREE.Mesh(floorGeometry, floorMaterial)
+// floor.position.y = 10
+// floor.position.z = 10
+// floor.rotation.z = - Math.PI / 2
+// scene.add(floor)
+
+// Test Geometry of Square with unique vertices
+// const squareGeometry = new THREE.BufferGeometry();
+
+// const vertices = new Float32Array( [
+// 	-1.0, -1.0,  1.0,
+// 	 1.0, -1.0,  1.0,
+// 	 1.0,  1.0,  1.0,
+
+// 	 1.0,  1.0,  1.0,
+// 	-1.0,  1.0,  1.0,
+// 	-1.0, -1.0,  1.0,
+
+//     2.0,  10.0,  1.0,
+// 	-1.0,  1.0,  1.0,
+// 	-1.0, -1.0,  1.0,
+
+//     0.0,  10.0,  1.0,
+// 	-1.0,  3.0,  1.0,
+// 	-1.0, -1.0,  1.0
+// ] );
+
+// squareGeometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+// const squareMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+// const square = new THREE.Mesh( squareGeometry, squareMaterial );
+// square.position.z = 30
+// square.rotation.x = Math.PI / 2
+// scene.add(square)
+
+// path of line
+// const path = new THREE.Path();
+
+// path.lineTo( 0, 0.8 );
+// path.quadraticCurveTo( 0, 2, 0.2, 2 );
+// path.lineTo( 20, 20 );
+
+// const points = path.getPoints();
+
+// const linePathGeometry = new THREE.BufferGeometry().setFromPoints( points );
+// const linePathMaterial = new THREE.LineBasicMaterial( { color: 0xffffff } );
+
+// const line = new THREE.Line( linePathGeometry, linePathMaterial );
+// scene.add( line );
+
+// Extrude Geometry
+// const length = 12, width = 8;
+
+// const shape = new THREE.Shape();
+// shape.moveTo( 0,1 );
+// shape.lineTo( 0, width );
+// shape.lineTo( length, width );
+// shape.lineTo( length, 0 );
+// shape.lineTo( 0, 0 );
+
+// const extrudeSettings = {
+// 	steps: 3,
+// 	depth: 500,
+// 	bevelEnabled: true,
+// 	bevelThickness: 10,
+// 	bevelSize: 2,
+// 	bevelOffset: 0,
+// 	bevelSegments: 5
+// };
+
+// const extrudeGeometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+// const ExtrudeMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+// const extrusion = new THREE.Mesh( extrudeGeometry, ExtrudeMaterial ) ;
+// extrusion.rotation.y = Math.PI / 2
+// scene.add( extrusion );
+
+
+// Tube Geometry
+
+
 
 /**
  * Plane
  */
-// Geometry
-const geometry = new THREE.CylinderGeometry(0.5, 0.5, variables.pipeLength.value, 100, 100, true)
-const material = new THREE.ShaderMaterial({
-        vertexShader: vertexColorFill,
-        fragmentShader: fragmentColorFill,
-        transparent: true,
-        uniforms: {
-            uTime: { value: 0 },
-            pipeLength: { value: variables.pipeLength.value }
-        },
-        side: DoubleSide
-    })
-const arc = new THREE.Mesh(geometry, material)
-arc.rotation.z = Math.PI / 2
-scene.add(arc)
+// Arc Geometry
+// const geometry = new THREE.CylinderGeometry(0.5, 0.5, variables.pipeLength.value, 100, 100, true)
+// const material = new THREE.ShaderMaterial({
+//         vertexShader: vertexColorFill,
+//         fragmentShader: fragmentColorFill,
+//         transparent: true,
+//         uniforms: {
+//             uTime: { value: 0 },
+//             pipeLength: { value: variables.pipeLength.value }
+//         },
+//         side: DoubleSide
+//     })
+// const arc = new THREE.Mesh(geometry, material)
+// arc.rotation.z = Math.PI / 2
+// scene.add(arc)
 
-gui.add(material.uniforms.pipeLength, 'value', 100, 175, 0.1).name('Pipe Length')
+// gui.add(material.uniforms.pipeLength, 'value', 100, 175, 0.1).name('Pipe Length')
 
 
-console.log(arc.position)
 
-console.log(floor.position)
+// Tube Geometry
+class CustomSinCurve extends THREE.Curve {
 
-// class CustomSinCurve extends THREE.Curve {
+	constructor( scale = 1 ) {
 
-// 	constructor( scale = 1 ) {
+		super();
 
-// 		super();
+		this.scale = scale;
 
-// 		this.scale = scale;
+	}
 
-// 	}
+	getPoint( t, optionalTarget = new THREE.Vector3() ) {
 
-// 	getPoint( t, optionalTarget = new THREE.Vector3() ) {
+		const tx = t * 3 - 1.5;
+		const ty = Math.sin( 2 * Math.PI * t );
+		const tz = Math.cos( 2 * Math.PI * t);
 
-// 		const tx = t;
-// 		const ty = 0;
-// 		const tz = 0;
+		return optionalTarget.set( tx, ty, tz ).multiplyScalar( this.scale );
 
-// 		return optionalTarget.set( tx, ty, tz ).multiplyScalar( this.scale );
+	}
 
-// 	}
+}
 
-// }
+const path = new CustomSinCurve( 100 );
+const tubeGeometry = new THREE.TubeGeometry( path, 100, 2, 8, false );
+const tubeMaterial = new THREE.ShaderMaterial({
+            vertexShader: vertexColorFill,
+            fragmentShader: fragmentColorFill,
+            transparent: true,
+            uniforms: {
+                uTime: { value: 0 },
+                reactiveLength,
+                pipeLength: { value: variables.pipeLength.value }
+            },
+        })
+const tubeMesh = new THREE.Mesh( tubeGeometry, tubeMaterial );
+scene.add( tubeMesh );
+
+
 
 // // Material
 // const material = new THREE.ShaderMaterial({
@@ -96,11 +194,6 @@ console.log(floor.position)
 //     }
 // })
 
-// const path = new CustomSinCurve( 200 );
-// const geometry = new THREE.TubeGeometry( path, 20, 2, 8, false );
-// // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-// const mesh = new THREE.Mesh( geometry, material );
-// scene.add( mesh );
 
 // const cylinderGeometry = new THREE.CylinderGeometry(5, 20, 1000, 20, 20, true)
 // const cylinderMaterial = new THREE.ShaderMaterial({
@@ -153,7 +246,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 1000)
-camera.position.set( -0.007208426434556429, -84.73211900588136, 20.5198587695649471)
+camera.position.set( -0.007208426434556429, -204.73211900588136, 20.5198587695649471)
 scene.add(camera)
 
 // Controls
@@ -177,12 +270,13 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
  const tick = () =>
  {
+     reactiveLength = ((scrollY / clientHeight) * 100);
      const elapsedTime = clock.getElapsedTime()
  
     //  console.log(camera.position)
 
      // Update ColorFill
-     material.uniforms.uTime.value = elapsedTime
+     tubeMaterial.uniforms.uTime.value = elapsedTime
 
      // Update controls
      controls.update()

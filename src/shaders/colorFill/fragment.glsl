@@ -1,4 +1,7 @@
 uniform float uTime;
+uniform float reactiveLength;
+
+
 
 varying vec4 vModelPosition;
 float r = 0.0;
@@ -61,7 +64,9 @@ void main()
     // float colorFill = -vModelPosition.y - 10.0 + uTime * 2.0;
 
     // gl_FragColor = vec4(getColor(0.27, 0.0), getColor(0.80, 0.5), getColor(0.22, 1.0), 1.0);
-    gl_FragColor = vec4(0.0, 0.9, 0.1, -vModelPosition.x - 22.0 + uTime * 10.0);
+    // gl_FragColor = vec4(0.0, 0.9, 0.1, -vModelPosition.x - 120.0 + uTime * 30.0);
+        gl_FragColor = vec4(0.0, 0.9, 0.1, -vModelPosition.x - 120.0 + reactiveLength * 30.0);
+
 
 }
 

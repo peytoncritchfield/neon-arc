@@ -1,4 +1,5 @@
 uniform float pipeLength;
+uniform float uTime;
 
 // float PI = 3.14159265359;
 
@@ -11,13 +12,16 @@ void main()
     // float curve = (sin(modelPosition.y / 6.5) * 20.0);
     // modelPosition.z += curve;
 
-    float radius = (pipeLength / 3.14159265359) * (pipeLength / 3.14159265359);
-    float innerSquare = radius - modelPosition.x * modelPosition.x;
-    float curve = sqrt(innerSquare);
-    modelPosition.z += curve;    
+    // float radius = (pipeLength / 3.14159265359) * (pipeLength / 3.14159265359);
+    // float innerSquare = radius - modelPosition.x * modelPosition.x;
+    // float curve = sqrt(innerSquare);
+    // modelPosition.z += curve;    
 
 // float curve = abs(sin(modelPosition.y / 10.0));
 // modelPosition.z += curve;
+
+    // float wiggle = sin(modelPosition.x / 2.0) * uTime * 2.0;
+    // modelPosition.z += wiggle;
     
 
     vec4 viewPosition = viewMatrix * modelPosition;
