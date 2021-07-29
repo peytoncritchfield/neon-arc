@@ -3,6 +3,8 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import fragmentColorFill from './shaders/colorFill/fragment.glsl'
 import vertexColorFill from './shaders/colorFill/vertex.glsl'
+import vertices from './json/vertices.json';
+
 import * as dat from 'dat.gui'
 
 let scrollY = 0;
@@ -30,30 +32,17 @@ const scene = new THREE.Scene({
 })
 
 
-class CustomSinCurve extends THREE.Curve {
+let points = [];
+for (var i = 0; i < vertices.points.length; i++) {
+    let x = vertices.points[i][0];
+    let y = vertices.points[i][1];
+    let z = vertices.points[i][2];
 
-	constructor( scale = 1 ) {
-
-		super();
-
-		this.scale = scale;
-
-	}
-
-	getPoint( t, optionalTarget = new THREE.Vector3() ) {
-
-		const tx = t * 3 - 1.5;
-		const ty = Math.sin( 2 * Math.PI * t );
-		const tz = Math.cos( 2 * Math.PI * t);
-
-		return optionalTarget.set( tx, ty, tz ).multiplyScalar( this.scale );
-
-	}
-
+    points.push(new THREE.Vector3(x, y, z));
 }
-
-const path = new CustomSinCurve( 100 );
-const tubeGeometry = new THREE.TubeGeometry( path, 100, 2, 8, false );
+console.log(points)
+// const path = new CustomSinCurve( 100 );
+const tubeGeometry = new THREE.TubeGeometry( new THREE.CatmullRomCurve3(points), 100, 2, 8, false );
 const tubeMaterial = new THREE.ShaderMaterial({
             vertexShader: vertexColorFill,
             fragmentShader: fragmentColorFill,

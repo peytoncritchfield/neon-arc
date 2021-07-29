@@ -22,7 +22,7 @@ body
     bottom: 0;
     left: 0;
     outline: none;
-    pointer-events: none;
+    /* pointer-events: none; */
 }
 
 
